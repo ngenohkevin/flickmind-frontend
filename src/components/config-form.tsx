@@ -11,7 +11,6 @@ import {
   Sparkles,
   ExternalLink,
   Copy,
-  Link2,
   Check,
   ChevronDown,
 } from "lucide-react";
@@ -39,8 +38,6 @@ import {
   type ConfigPayload,
   createConfig,
   updateConfig,
-  disconnectTrakt,
-  getTraktAuthURL,
   getAddonURL,
   getInstallURL,
 } from "@/lib/api";
@@ -321,17 +318,6 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
     }
   };
 
-  const handleDisconnectTrakt = async () => {
-    if (!userId || !confirm("Disconnect Trakt.tv?")) return;
-    try {
-      await disconnectTrakt(userId);
-      toast.success("Trakt disconnected");
-      router.refresh();
-    } catch {
-      toast.error("Failed to disconnect Trakt");
-    }
-  };
-
   const handleCopy = () => {
     if (!userId) return;
     navigator.clipboard.writeText(getAddonURL(userId));
@@ -482,72 +468,6 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
           </CollapsibleContent>
         </Card>
       </Collapsible>
-
-      {/* Trakt.tv Integration */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
-            Trakt.tv
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Connect your Trakt account for personalized &quot;Because You
-            Watched&quot; recommendations.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isNew ? (
-            <p className="text-xs text-muted-foreground">
-              Save your config first, then connect Trakt from your settings
-              page.
-            </p>
-          ) : !existingConfig?.hasTrakt ? (
-            <p className="text-xs text-muted-foreground">
-              Trakt integration is not available yet. Coming soon.
-            </p>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    existingConfig?.traktConnected
-                      ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.4)]"
-                      : "bg-zinc-600"
-                  }`}
-                />
-                <span className="text-sm">
-                  {existingConfig?.traktConnected
-                    ? "Connected to Trakt.tv"
-                    : "Not connected"}
-                </span>
-              </div>
-              {existingConfig?.traktConnected ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
-                  onClick={handleDisconnectTrakt}
-                >
-                  Disconnect
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
-                  asChild
-                >
-                  <a href={getTraktAuthURL(userId!)}>
-                    <Link2 className="h-3.5 w-3.5 mr-1.5" />
-                    Connect
-                  </a>
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Preferences */}
       <Card>
