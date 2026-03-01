@@ -12,6 +12,9 @@ export interface UserConfig {
   language: string;
   mood: string;
   minRating: number;
+  yearFrom: number;
+  yearTo: number;
+  maxResults: number;
 }
 
 export interface CreateConfigResponse {
@@ -29,6 +32,9 @@ export interface ConfigPayload {
   language: string;
   mood: string;
   minRating: number;
+  yearFrom: number;
+  yearTo: number;
+  maxResults: number;
 }
 
 async function parseError(res: Response, fallback: string): Promise<string> {

@@ -214,6 +214,9 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   const [language, setLanguage] = useState(existingConfig?.language || "en");
   const [mood, setMood] = useState(existingConfig?.mood || "");
   const [minRating, setMinRating] = useState(existingConfig?.minRating || 0);
+  const [yearFrom, setYearFrom] = useState(existingConfig?.yearFrom || 0);
+  const [yearTo, setYearTo] = useState(existingConfig?.yearTo || 0);
+  const [maxResults, setMaxResults] = useState(existingConfig?.maxResults || 25);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -293,6 +296,9 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
       language,
       mood,
       minRating,
+      yearFrom,
+      yearTo,
+      maxResults,
     };
 
     try {
@@ -629,6 +635,42 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
             </select>
           </div>
 
+          {/* Year Range */}
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Year Range</Label>
+            <div className="flex items-center gap-2">
+              <select
+                value={yearFrom}
+                onChange={(e) => setYearFrom(Number(e.target.value))}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value={0}>Any</option>
+                {Array.from({ length: new Date().getFullYear() - 1950 + 1 }, (_, i) => new Date().getFullYear() - i).map(
+                  (year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  )
+                )}
+              </select>
+              <span className="text-xs text-muted-foreground shrink-0">to</span>
+              <select
+                value={yearTo}
+                onChange={(e) => setYearTo(Number(e.target.value))}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <option value={0}>Any</option>
+                {Array.from({ length: new Date().getFullYear() - 1950 + 1 }, (_, i) => new Date().getFullYear() - i).map(
+                  (year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+          </div>
+
           {/* Mood */}
           <div className="space-y-2.5">
             <Label className="text-xs text-muted-foreground">Mood</Label>
@@ -666,6 +708,26 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
               min={0}
               max={9}
               step={0.5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Max Results */}
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">
+                Results per Catalog
+              </Label>
+              <span className="text-sm font-semibold tabular-nums text-violet-400">
+                {maxResults}
+              </span>
+            </div>
+            <Slider
+              value={[maxResults]}
+              onValueChange={([v]) => setMaxResults(v)}
+              min={10}
+              max={50}
+              step={5}
               className="w-full"
             />
           </div>
