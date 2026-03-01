@@ -95,7 +95,7 @@ const AI_PROVIDERS = [
     name: "Groq",
     description: "Llama 3.3 70B — fast inference",
     freeTier: "Free: 30 req/min, 14,400 req/day",
-    recommended: true,
+    recommended: "best",
     keyUrl: "https://console.groq.com/keys",
     placeholder: "gsk_...",
     keyPrefix: "gsk_",
@@ -109,7 +109,7 @@ const AI_PROVIDERS = [
     name: "DeepSeek",
     description: "DeepSeek-V3 — high quality",
     freeTier: "Pay-as-you-go: ~$0.14/M input, $0.28/M output tokens",
-    recommended: false,
+    recommended: "cheapest",
     keyUrl: "https://platform.deepseek.com/api_keys",
     placeholder: "sk-...",
     keyPrefix: "sk-",
@@ -378,9 +378,14 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                         <p className="text-sm font-medium leading-none">
                           {provider.name}
                         </p>
-                        {provider.recommended && (
+                        {provider.recommended === "best" && (
                           <span className="text-[9px] font-medium uppercase tracking-wider bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">
                             Recommended
+                          </span>
+                        )}
+                        {provider.recommended === "cheapest" && (
+                          <span className="text-[9px] font-medium uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">
+                            Best Value
                           </span>
                         )}
                       </div>
