@@ -261,9 +261,6 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
 
   const toggleProvider = (id: ProviderId) => {
     setEnabledProviders((prev) => ({ ...prev, [id]: !prev[id] }));
-    if (enabledProviders[id]) {
-      setKeys((prev) => ({ ...prev, [id]: "" }));
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
