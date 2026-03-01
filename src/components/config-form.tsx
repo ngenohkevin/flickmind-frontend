@@ -13,6 +13,7 @@ import {
   Copy,
   Link2,
   Check,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +29,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   type UserConfig,
   type ConfigPayload,
@@ -336,110 +342,143 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* AI Providers */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
-            AI Providers
-          </CardTitle>
-          <CardDescription className="text-xs">
-            {activeProviderCount === 0
-              ? "Enable at least one provider for AI recommendations, or get TMDB popular content."
-              : `${activeProviderCount} provider${activeProviderCount > 1 ? "s" : ""} enabled — providers are tried in order as fallback.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {AI_PROVIDERS.map((provider) => {
-            const Icon = provider.icon;
-            const enabled = enabledProviders[provider.id];
-            return (
-              <div
-                key={provider.id}
-                className={`rounded-lg border p-3 transition-all ${
-                  enabled
-                    ? `${provider.borderColor} ${provider.bgColor}`
-                    : "border-border/50 opacity-60"
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2.5">
-                    <div
-                      className={`p-1.5 rounded-md ${
-                        enabled ? provider.bgColor : "bg-muted"
-                      }`}
-                    >
-                      <Icon
-                        className={`h-4 w-4 ${
-                          enabled ? provider.color : "text-muted-foreground"
-                        }`}
+      <Collapsible
+        defaultOpen={activeProviderCount === 0}
+        className="group/collapsible"
+      >
+        <Card>
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer select-none">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
+                    AI Providers
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    {activeProviderCount === 0
+                      ? "Enable at least one provider for AI recommendations, or get TMDB popular content."
+                      : `${activeProviderCount} provider${activeProviderCount > 1 ? "s" : ""} enabled — providers are tried in order as fallback.`}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  {activeProviderCount > 0 && (
+                    <div className="flex -space-x-1">
+                      {AI_PROVIDERS.filter((p) => enabledProviders[p.id]).map(
+                        (p) => {
+                          const Icon = p.icon;
+                          return (
+                            <div
+                              key={p.id}
+                              className={`p-1 rounded-md ${p.bgColor} border ${p.borderColor}`}
+                            >
+                              <Icon className={`h-3 w-3 ${p.color}`} />
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  )}
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
+                </div>
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-3 pt-0">
+              {AI_PROVIDERS.map((provider) => {
+                const Icon = provider.icon;
+                const enabled = enabledProviders[provider.id];
+                return (
+                  <div
+                    key={provider.id}
+                    className={`rounded-lg border p-3 transition-all ${
+                      enabled
+                        ? `${provider.borderColor} ${provider.bgColor}`
+                        : "border-border/50 opacity-60"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`p-1.5 rounded-md ${
+                            enabled ? provider.bgColor : "bg-muted"
+                          }`}
+                        >
+                          <Icon
+                            className={`h-4 w-4 ${
+                              enabled ? provider.color : "text-muted-foreground"
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-medium leading-none">
+                              {provider.name}
+                            </p>
+                            {provider.recommended === "best" && (
+                              <span className="text-[9px] font-medium uppercase tracking-wider bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">
+                                Recommended
+                              </span>
+                            )}
+                            {provider.recommended === "cheapest" && (
+                              <span className="text-[9px] font-medium uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">
+                                Best Value
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">
+                            {provider.description}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                            {provider.freeTier}
+                          </p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={enabled}
+                        onCheckedChange={() => toggleProvider(provider.id)}
                       />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium leading-none">
-                          {provider.name}
-                        </p>
-                        {provider.recommended === "best" && (
-                          <span className="text-[9px] font-medium uppercase tracking-wider bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">
-                            Recommended
-                          </span>
+                    {enabled && (
+                      <div className="mt-2.5 space-y-1.5">
+                        <PasswordInput
+                          id={`${provider.id}Key`}
+                          value={keys[provider.id]}
+                          onChange={(v) => {
+                            setKeys((prev) => ({ ...prev, [provider.id]: v }));
+                            if (errors[provider.id]) {
+                              setErrors((prev) => {
+                                const next = { ...prev };
+                                delete next[provider.id];
+                                return next;
+                              });
+                            }
+                          }}
+                          placeholder={provider.placeholder}
+                        />
+                        {errors[provider.id] && (
+                          <p className="text-[11px] text-destructive">
+                            {errors[provider.id]}
+                          </p>
                         )}
-                        {provider.recommended === "cheapest" && (
-                          <span className="text-[9px] font-medium uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">
-                            Best Value
-                          </span>
-                        )}
+                        <a
+                          href={provider.keyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`inline-flex items-center gap-1 text-[11px] ${provider.color} hover:underline`}
+                        >
+                          Get API key
+                          <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {provider.description}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground/70 mt-0.5">
-                        {provider.freeTier}
-                      </p>
-                    </div>
-                  </div>
-                  <Switch
-                    checked={enabled}
-                    onCheckedChange={() => toggleProvider(provider.id)}
-                  />
-                </div>
-                {enabled && (
-                  <div className="mt-2.5 space-y-1.5">
-                    <PasswordInput
-                      id={`${provider.id}Key`}
-                      value={keys[provider.id]}
-                      onChange={(v) => {
-                        setKeys((prev) => ({ ...prev, [provider.id]: v }));
-                        if (errors[provider.id]) {
-                          setErrors((prev) => {
-                            const next = { ...prev };
-                            delete next[provider.id];
-                            return next;
-                          });
-                        }
-                      }}
-                      placeholder={provider.placeholder}
-                    />
-                    {errors[provider.id] && (
-                      <p className="text-[11px] text-destructive">
-                        {errors[provider.id]}
-                      </p>
                     )}
-                    <a
-                      href={provider.keyUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`inline-flex items-center gap-1 text-[11px] ${provider.color} hover:underline`}
-                    >
-                      Get API key
-                      <ExternalLink className="h-2.5 w-2.5" />
-                    </a>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+                );
+              })}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {/* Trakt.tv Integration */}
       {!isNew && userId && (
