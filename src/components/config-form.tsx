@@ -362,7 +362,7 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   {activeProviderCount > 0 && (
-                    <div className="flex -space-x-1">
+                    <div className="flex gap-1.5">
                       {AI_PROVIDERS.filter((p) => enabledProviders[p.id]).map(
                         (p) => {
                           const Icon = p.icon;
@@ -481,18 +481,27 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
       </Collapsible>
 
       {/* Trakt.tv Integration */}
-      {!isNew && userId && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
-              Trakt.tv
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Connect your Trakt account for personalized &quot;Because You
-              Watched&quot; recommendations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
+            Trakt.tv
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Connect your Trakt account for personalized &quot;Because You
+            Watched&quot; recommendations.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isNew ? (
+            <p className="text-xs text-muted-foreground">
+              Save your config first, then connect Trakt from your settings
+              page.
+            </p>
+          ) : !existingConfig?.hasTrakt ? (
+            <p className="text-xs text-muted-foreground">
+              Trakt integration is not available yet. Coming soon.
+            </p>
+          ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div
@@ -526,16 +535,16 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                   className="text-xs"
                   asChild
                 >
-                  <a href={getTraktAuthURL(userId)}>
+                  <a href={getTraktAuthURL(userId!)}>
                     <Link2 className="h-3.5 w-3.5 mr-1.5" />
                     Connect
                   </a>
                 </Button>
               )}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       {/* Preferences */}
       <Card>
