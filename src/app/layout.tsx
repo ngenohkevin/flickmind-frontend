@@ -17,6 +17,12 @@ export const metadata: Metadata = {
   title: "FlickMind — AI-Powered Recommendations for Stremio",
   description:
     "Get personalized movie & TV recommendations powered by AI inside Stremio and Nuvio. Bring your own API key.",
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

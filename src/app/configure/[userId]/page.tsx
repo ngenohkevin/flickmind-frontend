@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 import { ConfigForm } from "@/components/config-form";
 import { getConfig, type UserConfig } from "@/lib/api";
 
@@ -31,7 +33,7 @@ export default function ConfigureUserPage() {
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
       </main>
     );
   }
@@ -47,13 +49,22 @@ export default function ConfigureUserPage() {
   return (
     <main className="min-h-screen py-12 px-4">
       <div className="max-w-lg mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-500 to-cyan-500 bg-clip-text text-transparent">
-            FlickMind
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Update your preferences — changes apply on next catalog refresh
-          </p>
+        <div className="flex items-center gap-2.5">
+          <Image
+            src="/icon.svg"
+            alt="FlickMind"
+            width={32}
+            height={32}
+            className="rounded-lg"
+          />
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-500 to-cyan-500 bg-clip-text text-transparent">
+              FlickMind
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              Changes apply on next catalog refresh
+            </p>
+          </div>
         </div>
         <ConfigForm existingConfig={config} userId={userId} />
       </div>
