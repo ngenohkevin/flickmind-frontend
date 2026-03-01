@@ -94,7 +94,11 @@ const AI_PROVIDERS = [
     id: "groq",
     name: "Groq",
     description: "Llama 3.3 70B — fast inference",
+    freeTier: "Free: 30 req/min, 14,400 req/day",
+    recommended: true,
+    keyUrl: "https://console.groq.com/keys",
     placeholder: "gsk_...",
+    keyPrefix: "gsk_",
     icon: Zap,
     color: "text-orange-400",
     bgColor: "bg-orange-500/10",
@@ -104,7 +108,11 @@ const AI_PROVIDERS = [
     id: "deepseek",
     name: "DeepSeek",
     description: "DeepSeek-V3 — high quality",
+    freeTier: "Pay-as-you-go: ~$0.14/M input, $0.28/M output tokens",
+    recommended: false,
+    keyUrl: "https://platform.deepseek.com/api_keys",
     placeholder: "sk-...",
+    keyPrefix: "sk-",
     icon: Brain,
     color: "text-blue-400",
     bgColor: "bg-blue-500/10",
@@ -114,7 +122,11 @@ const AI_PROVIDERS = [
     id: "gemini",
     name: "Gemini",
     description: "Gemini 2.0 Flash — Google AI",
+    freeTier: "Free: 15 req/min, 1,500 req/day",
+    recommended: false,
+    keyUrl: "https://aistudio.google.com/apikey",
     placeholder: "AIza...",
+    keyPrefix: "AIza",
     icon: Sparkles,
     color: "text-emerald-400",
     bgColor: "bg-emerald-500/10",
@@ -198,6 +210,36 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   const [minRating, setMinRating] = useState(existingConfig?.minRating || 0);
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Validate enabled providers have keys
+    for (const provider of AI_PROVIDERS) {
+      if (enabledProviders[provider.id]) {
+        const key = keys[provider.id];
+        if (!key || key.startsWith("••••")) continue; // masked keys are ok
+        if (key.length < 10) {
+          newErrors[provider.id] = "API key seems too short";
+        } else if (
+          provider.keyPrefix &&
+          !key.startsWith(provider.keyPrefix)
+        ) {
+          newErrors[provider.id] =
+            `Key should start with "${provider.keyPrefix}"`;
+        }
+      }
+    }
+
+    // Validate at least one content type
+    if (contentTypes.length === 0) {
+      newErrors.contentTypes = "Select at least one content type";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const toggleGenre = (genre: string) => {
     setGenres((prev) =>
@@ -220,6 +262,23 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors before saving");
+      return;
+    }
+
+    // Warn if no providers enabled (not an error, just a heads-up)
+    const hasEnabledWithKey = AI_PROVIDERS.some(
+      (p) => enabledProviders[p.id] && keys[p.id] && !keys[p.id].startsWith("••••")
+    );
+    const hasExistingKeys = AI_PROVIDERS.some(
+      (p) => enabledProviders[p.id] && keys[p.id]?.startsWith("••••")
+    );
+    if (!hasEnabledWithKey && !hasExistingKeys && activeProviderCount === 0) {
+      // Just a warning, still allow saving
+    }
+
     setSaving(true);
 
     const payload: ConfigPayload = {
@@ -244,8 +303,10 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
           "Changes saved! Recommendations will update on next refresh."
         );
       }
-    } catch {
-      toast.error("Failed to save configuration");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to save configuration";
+      toast.error(message);
     } finally {
       setSaving(false);
     }
@@ -313,11 +374,21 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                       />
                     </div>
                     <div>
-                      <p className="text-sm font-medium leading-none">
-                        {provider.name}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium leading-none">
+                          {provider.name}
+                        </p>
+                        {provider.recommended && (
+                          <span className="text-[9px] font-medium uppercase tracking-wider bg-violet-500/20 text-violet-400 px-1.5 py-0.5 rounded">
+                            Recommended
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
                         {provider.description}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                        {provider.freeTier}
                       </p>
                     </div>
                   </div>
@@ -327,15 +398,36 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                   />
                 </div>
                 {enabled && (
-                  <div className="mt-2.5">
+                  <div className="mt-2.5 space-y-1.5">
                     <PasswordInput
                       id={`${provider.id}Key`}
                       value={keys[provider.id]}
-                      onChange={(v) =>
-                        setKeys((prev) => ({ ...prev, [provider.id]: v }))
-                      }
+                      onChange={(v) => {
+                        setKeys((prev) => ({ ...prev, [provider.id]: v }));
+                        if (errors[provider.id]) {
+                          setErrors((prev) => {
+                            const next = { ...prev };
+                            delete next[provider.id];
+                            return next;
+                          });
+                        }
+                      }}
                       placeholder={provider.placeholder}
                     />
+                    {errors[provider.id] && (
+                      <p className="text-[11px] text-destructive">
+                        {errors[provider.id]}
+                      </p>
+                    )}
+                    <a
+                      href={provider.keyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`inline-flex items-center gap-1 text-[11px] ${provider.color} hover:underline`}
+                    >
+                      Get API key
+                      <ExternalLink className="h-2.5 w-2.5" />
+                    </a>
                   </div>
                 )}
               </div>
@@ -443,12 +535,26 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                 >
                   <Checkbox
                     checked={contentTypes.includes(value)}
-                    onCheckedChange={() => toggleContentType(value)}
+                    onCheckedChange={() => {
+                      toggleContentType(value);
+                      if (errors.contentTypes) {
+                        setErrors((prev) => {
+                          const next = { ...prev };
+                          delete next.contentTypes;
+                          return next;
+                        });
+                      }
+                    }}
                   />
                   <span className="text-sm">{label}</span>
                 </label>
               ))}
             </div>
+            {errors.contentTypes && (
+              <p className="text-[11px] text-destructive">
+                {errors.contentTypes}
+              </p>
+            )}
           </div>
 
           {/* Language */}
