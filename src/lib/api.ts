@@ -15,6 +15,7 @@ export interface UserConfig {
   yearFrom: number;
   yearTo: number;
   maxResults: number;
+  recommendationSource: string;
 }
 
 export interface CreateConfigResponse {
@@ -35,6 +36,7 @@ export interface ConfigPayload {
   yearFrom: number;
   yearTo: number;
   maxResults: number;
+  recommendationSource: string;
 }
 
 async function parseError(res: Response, fallback: string): Promise<string> {

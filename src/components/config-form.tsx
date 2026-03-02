@@ -13,6 +13,8 @@ import {
   Copy,
   Check,
   ChevronDown,
+  List,
+  Settings2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +65,7 @@ const CONTENT_TYPES = [
   { value: "movie", label: "Movies" },
   { value: "series", label: "TV Shows" },
   { value: "anime", label: "Anime" },
+  { value: "documentary", label: "Documentaries" },
 ];
 
 const LANGUAGES = [
@@ -214,6 +217,9 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   const [yearFrom, setYearFrom] = useState(existingConfig?.yearFrom || 0);
   const [yearTo, setYearTo] = useState(existingConfig?.yearTo || 0);
   const [maxResults, setMaxResults] = useState(existingConfig?.maxResults || 25);
+  const [recommendationSource, setRecommendationSource] = useState(
+    existingConfig?.recommendationSource || "preferences"
+  );
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -296,6 +302,7 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
       yearFrom,
       yearTo,
       maxResults,
+      recommendationSource,
     };
 
     try {
@@ -477,6 +484,72 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
+          {/* Recommendation Source */}
+          {existingConfig?.traktConnected && (
+            <div className="space-y-2.5">
+              <Label className="text-xs text-muted-foreground">
+                AI Recommendations Based On
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRecommendationSource("preferences")}
+                  className={`flex items-center gap-2 rounded-lg border p-3 transition-all text-left ${
+                    recommendationSource === "preferences"
+                      ? "border-violet-500/50 bg-violet-500/10"
+                      : "border-border/50 opacity-60 hover:opacity-80"
+                  }`}
+                >
+                  <Settings2
+                    className={`h-4 w-4 shrink-0 ${
+                      recommendationSource === "preferences"
+                        ? "text-violet-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                  <div>
+                    <p className="text-sm font-medium leading-none">
+                      Preferences
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Genres, mood & filters
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRecommendationSource("watchlist")}
+                  className={`flex items-center gap-2 rounded-lg border p-3 transition-all text-left ${
+                    recommendationSource === "watchlist"
+                      ? "border-cyan-500/50 bg-cyan-500/10"
+                      : "border-border/50 opacity-60 hover:opacity-80"
+                  }`}
+                >
+                  <List
+                    className={`h-4 w-4 shrink-0 ${
+                      recommendationSource === "watchlist"
+                        ? "text-cyan-400"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                  <div>
+                    <p className="text-sm font-medium leading-none">
+                      Trakt Watchlist
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Based on saved titles
+                    </p>
+                  </div>
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                {recommendationSource === "watchlist"
+                  ? "AI will analyze your Trakt watchlist to find similar titles you'd love."
+                  : "AI will use your genre, mood, and filter preferences below."}
+              </p>
+            </div>
+          )}
+
           {/* Genres */}
           <div className="space-y-2.5">
             <Label className="text-xs text-muted-foreground">Genres</Label>
