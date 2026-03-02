@@ -42,6 +42,8 @@ import {
   updateConfig,
   getAddonURL,
   getInstallURL,
+  getTraktAuthURL,
+  disconnectTrakt,
 } from "@/lib/api";
 
 const GENRES = [
@@ -726,6 +728,68 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Trakt Integration */}
+      {existingConfig?.hasTrakt && userId && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium tracking-wide uppercase text-muted-foreground">
+              Trakt.tv
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              Connect your Trakt account for personalized recommendations based
+              on your watch history and watchlist.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {existingConfig.traktConnected ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant="outline"
+                    className="border-green-500/50 text-green-400"
+                  >
+                    Connected
+                  </Badge>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="text-xs text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    try {
+                      await disconnectTrakt(userId);
+                      toast.success("Trakt disconnected");
+                      router.refresh();
+                    } catch (e) {
+                      toast.error(
+                        e instanceof Error
+                          ? e.message
+                          : "Failed to disconnect"
+                      );
+                    }
+                  }}
+                >
+                  Disconnect Trakt
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                onClick={() =>
+                  window.open(getTraktAuthURL(userId), "_self")
+                }
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Connect Trakt.tv
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Save */}
       <Button
