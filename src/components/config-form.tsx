@@ -124,8 +124,9 @@ const AI_PROVIDERS = [
   {
     id: "deepseek",
     name: "DeepSeek",
-    description: "DeepSeek-V3 — high quality",
+    description: "DeepSeek-V3 — high quality, slower responses",
     freeTier: "Pay-as-you-go: ~$0.14/M input, $0.28/M output tokens",
+    disclaimer: "DeepSeek is slower than Groq/Gemini. Best used as a fallback provider.",
     recommended: "cheapest",
     keyUrl: "https://platform.deepseek.com/api_keys",
     placeholder: "sk-...",
@@ -443,6 +444,12 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                           <p className="text-[10px] text-muted-foreground/70 mt-0.5">
                             {provider.freeTier}
                           </p>
+                          {"disclaimer" in provider && provider.disclaimer && (
+                            <p className="text-[10px] text-amber-400/80 mt-0.5 flex items-center gap-1">
+                              <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                              {provider.disclaimer}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <Switch
