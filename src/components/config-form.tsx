@@ -15,6 +15,7 @@ import {
   ChevronDown,
   List,
   Settings2,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -95,6 +96,14 @@ const MOODS = [
   { value: "funny", label: "Funny" },
   { value: "epic", label: "Epic" },
   { value: "nostalgic", label: "Nostalgic" },
+];
+
+const REFRESH_INTERVALS = [
+  { value: "1h", label: "Every 1 hour" },
+  { value: "2h", label: "Every 2 hours" },
+  { value: "6h", label: "Every 6 hours" },
+  { value: "12h", label: "Every 12 hours" },
+  { value: "24h", label: "Every 24 hours" },
 ];
 
 const AI_PROVIDERS = [
@@ -222,6 +231,9 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   const [recommendationSource, setRecommendationSource] = useState(
     existingConfig?.recommendationSource || "preferences"
   );
+  const [refreshInterval, setRefreshInterval] = useState(
+    existingConfig?.refreshInterval || "2h"
+  );
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -305,6 +317,7 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
       yearTo,
       maxResults,
       recommendationSource,
+      refreshInterval,
     };
 
     try {
@@ -725,6 +738,39 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
               step={5}
               className="w-full"
             />
+          </div>
+
+          {/* Refresh Interval */}
+          <div className="space-y-2">
+            <Label
+              htmlFor="refreshInterval"
+              className="text-xs text-muted-foreground"
+            >
+              Catalog Refresh Interval
+            </Label>
+            <select
+              id="refreshInterval"
+              value={refreshInterval}
+              onChange={(e) => setRefreshInterval(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              {REFRESH_INTERVALS.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <p className="text-[10px] text-muted-foreground">
+              How often to fetch fresh AI recommendations. Cached results are served between refreshes.
+            </p>
+            {(refreshInterval === "1h" || refreshInterval === "2h") && (
+              <div className="flex items-start gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/5 px-2.5 py-2 mt-1">
+                <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <p className="text-[10px] text-amber-300/90 leading-relaxed">
+                  Shorter intervals use more AI API calls. Free-tier providers (Groq: 14,400/day, Gemini: 1,500/day) may hit rate limits with frequent refreshes and many catalogs.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
