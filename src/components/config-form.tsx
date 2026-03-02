@@ -110,8 +110,8 @@ const AI_PROVIDERS = [
   {
     id: "groq",
     name: "Groq",
-    description: "Llama 3.3 70B — fast inference",
-    freeTier: "Free: 30 req/min, 14,400 req/day",
+    description: "Llama 3.1 8B — fast inference, high token quota",
+    freeTier: "Free: 30 req/min, 500K tokens/day",
     recommended: "best",
     keyUrl: "https://console.groq.com/keys",
     placeholder: "gsk_...",
