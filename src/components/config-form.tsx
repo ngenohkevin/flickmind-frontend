@@ -238,6 +238,10 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [initialContentTypes] = useState<string[]>(
+    existingConfig?.contentTypes || ["movie", "series"]
+  );
+  const [showReinstallNote, setShowReinstallNote] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -328,9 +332,18 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
         router.push(`/configure/${result.userId}`);
       } else {
         await updateConfig(userId, payload);
-        toast.success(
-          "Changes saved! Recommendations will update on next refresh."
-        );
+        const typesChanged =
+          contentTypes.length !== initialContentTypes.length ||
+          contentTypes.some((t) => !initialContentTypes.includes(t)) ||
+          initialContentTypes.some((t) => !contentTypes.includes(t));
+        if (typesChanged) {
+          setShowReinstallNote(true);
+          toast.success("Changes saved! Reinstall the addon to see new catalog rows.");
+        } else {
+          toast.success(
+            "Changes saved! Recommendations will update on next refresh."
+          );
+        }
       }
     } catch (err) {
       const message =
@@ -857,6 +870,21 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
             ? "Create & Get Addon URL"
             : "Save Changes"}
       </Button>
+
+      {/* Reinstall note when content types changed */}
+      {showReinstallNote && userId && (
+        <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2.5">
+          <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-amber-300">
+              Reinstall required
+            </p>
+            <p className="text-[11px] text-amber-300/80 leading-relaxed">
+              You changed content types, which adds or removes catalog rows. Reinstall the addon below for the changes to appear in Stremio/Nuvio. Your preferences and API keys are preserved.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Addon URL (existing users) */}
       {userId && (
