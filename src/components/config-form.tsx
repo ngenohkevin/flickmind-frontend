@@ -604,6 +604,11 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                 </Badge>
               ))}
             </div>
+            {genres.length > 0 && (
+              <p className="text-[10px] text-muted-foreground">
+                Every pick matches at least one selected genre. Unselected genres are left out, except Drama.
+              </p>
+            )}
           </div>
 
           {/* Content Types */}
@@ -661,6 +666,11 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
                 </option>
               ))}
             </select>
+            <p className="text-[10px] text-muted-foreground">
+              {language
+                ? "Only titles originally in this language (anime is exempt). Choose Any for world cinema."
+                : "Titles in any original language."}
+            </p>
           </div>
 
           {/* Year Range */}
