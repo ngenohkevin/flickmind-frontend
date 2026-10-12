@@ -20,6 +20,8 @@ export default function ConfigureUserPage() {
   useEffect(() => {
     if (searchParams.get("trakt") === "connected") {
       toast.success("Trakt.tv connected successfully!");
+    } else if (searchParams.get("trakt") === "error") {
+      toast.error("Trakt.tv wasn't connected. Try connecting again.");
     }
   }, [searchParams]);
 
