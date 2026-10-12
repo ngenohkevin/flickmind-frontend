@@ -110,8 +110,8 @@ const AI_PROVIDERS = [
   {
     id: "groq",
     name: "Groq",
-    description: "Llama 3.1 8B — fast inference, high token quota",
-    freeTier: "Free: 30 req/min, 500K tokens/day",
+    description: "GPT-OSS 120B — fast inference, strong picks",
+    freeTier: "Free: 30 req/min, 1K req/day, 8K tokens/min",
     recommended: "best",
     keyUrl: "https://console.groq.com/keys",
     placeholder: "gsk_...",
@@ -139,8 +139,8 @@ const AI_PROVIDERS = [
   {
     id: "gemini",
     name: "Gemini",
-    description: "Gemini 2.0 Flash — Google AI",
-    freeTier: "Free: 15 req/min, 1,500 req/day",
+    description: "Gemini 3.6 Flash — Google AI",
+    freeTier: "Free: 5 req/min, 20 req/day",
     recommended: false,
     keyUrl: "https://aistudio.google.com/apikey",
     placeholder: "AIza...",
@@ -787,7 +787,7 @@ export function ConfigForm({ existingConfig, userId }: ConfigFormProps) {
               <div className="flex items-start gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/5 px-2.5 py-2 mt-1">
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-[10px] text-amber-300/90 leading-relaxed">
-                  Shorter intervals use more AI API calls. Free-tier providers (Groq: 14,400/day, Gemini: 1,500/day) may hit rate limits with frequent refreshes and many catalogs.
+                  Shorter intervals use more AI API calls. Free-tier providers (Groq: 1,000/day, Gemini: 20/day) may hit rate limits with frequent refreshes and many catalogs.
                 </p>
               </div>
             )}
